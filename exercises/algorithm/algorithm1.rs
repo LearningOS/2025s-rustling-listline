@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +69,62 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self
+where
+    T: Ord + Clone,
+    {
+    let mut merged_list = LinkedList::new();
+    
+    // Extract values from both lists to avoid unsafe memory manipulation
+    let mut values_a = Vec::with_capacity(list_a.length as usize);
+    let mut values_b = Vec::with_capacity(list_b.length as usize);
+    
+    // Helper function to extract values safely
+    fn extract_values<T: Clone>(list: &LinkedList<T>) -> Vec<T> {
+        let mut values = Vec::new();
+        let mut current = list.start;
+        
+        while let Some(node_ptr) = current {
+            unsafe {
+                values.push((*node_ptr.as_ptr()).val.clone());
+                current = (*node_ptr.as_ptr()).next;
+            }
         }
-	}
+        
+        values
+    }
+    
+    values_a = extract_values(&list_a);
+    values_b = extract_values(&list_b);
+    
+    // Merge the two sorted arrays
+    let mut i = 0;
+    let mut j = 0;
+    
+    while i < values_a.len() && j < values_b.len() {
+        if values_a[i] <= values_b[j] {
+            merged_list.add(values_a[i].clone());
+            i += 1;
+        } else {
+            merged_list.add(values_b[j].clone());
+            j += 1;
+        }
+    }
+    
+    // Add remaining elements from values_a, if any
+    while i < values_a.len() {
+        merged_list.add(values_a[i].clone());
+        i += 1;
+    }
+    
+    // Add remaining elements from values_b, if any
+    while j < values_b.len() {
+        merged_list.add(values_b[j].clone());
+        j += 1;
+    }
+    
+        merged_list
+    }
 }
 
 impl<T> Display for LinkedList<T>

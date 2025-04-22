@@ -2,7 +2,7 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
+
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -52,32 +52,48 @@ impl<T> Default for Queue<T> {
     }
 }
 
-pub struct myStack<T>
-{
-	//TODO
-	q1:Queue<T>,
-	q2:Queue<T>
+pub struct myStack<T> {
+    q1: Queue<T>, // 主队列
+    q2: Queue<T>, // 辅助队列
 }
+
 impl<T> myStack<T> {
+    // 创建一个新的栈
     pub fn new() -> Self {
         Self {
-			//TODO
-			q1:Queue::<T>::new(),
-			q2:Queue::<T>::new()
+            q1: Queue::new(),
+            q2: Queue::new(),
         }
     }
+
+    // 压入一个元素到栈中
     pub fn push(&mut self, elem: T) {
-        //TODO
+        // 将新元素加入辅助队列 q2
+        self.q2.enqueue(elem);
+
+        // 把 q1 中的元素逐个移到 q2 中
+        while !self.q1.is_empty() {
+            if let Ok(val) = self.q1.dequeue() {
+                self.q2.enqueue(val);
+            }
+        }
+
+        // 交换 q1 和 q2，这样 q1 中就是栈的元素，q2 为空
+        std::mem::swap(&mut self.q1, &mut self.q2);
     }
+
+    // 弹出栈顶元素
     pub fn pop(&mut self) -> Result<T, &str> {
-        //TODO
-		Err("Stack is empty")
+        // 从 q1 中弹出栈顶元素
+        self.q1.dequeue().map_err(|_| "Stack is empty")
     }
+
+    // 查看栈是否为空
     pub fn is_empty(&self) -> bool {
-		//TODO
-        true
+        self.q1.is_empty()
     }
 }
+
 
 #[cfg(test)]
 mod tests {
